@@ -1,24 +1,26 @@
 /*
- Copyright (C) 2011 J. Coliz <maniacbug@ymail.com>
+  Copyright (C) 2011 J. Coliz <maniacbug@ymail.com>
 
- This program is free software; you can redistribute it and/or
- modify it under the terms of the GNU General Public License
- version 2 as published by the Free Software Foundation.
- */
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU General Public License
+  version 2 as published by the Free Software Foundation.
+*/
 
 /**
- * Example RF Radio Ping Pair
- *
- * This is an example of how to use the RF24 class.  Write this sketch to two different nodes,
- * connect the role_pin to ground on one.  The ping node sends the current time to the pong node,
- * which responds by sending the value back.  The ping node can then see how long the whole cycle
- * took.
- */
+   Example RF Radio Ping Pair
+
+   This is an example of how to use the RF24 class.  Write this sketch to two different nodes,
+   connect the role_pin to ground on one.  The ping node sends the current time to the pong node,
+   which responds by sending the value back.  The ping node can then see how long the whole cycle
+   took.
+*/
 
 #include <SPI.h>
 #include "nRF24L01.h"
 #include "RF24.h"
 #include "printf.h"
+
+#define outputPin A0
 
 //
 // Hardware configuration
@@ -29,7 +31,7 @@
 RF24 radio(9, 10);
 
 // Radio pipe addresses for the 2 nodes to communicate.
-const uint64_t pipes[2] = { 0xF0F0F0F0E1LL, 0xF0F0F0F0D2LL };
+const uint64_t pipes[2] = {0xF0F0F0F0E1LL, 0xF0F0F0F0D2LL};
 
 //
 // Role management
@@ -38,11 +40,14 @@ const uint64_t pipes[2] = { 0xF0F0F0F0E1LL, 0xF0F0F0F0D2LL };
 // in this system.  Doing so greatly simplifies testing.  The hardware itself specifies
 // which node it is.
 
-void setup(void)
-{
+void setup(void) {
+  pinMode(outputPin, OUTPUT);
+  digitalWrite(outputPin, HIGH);
+  
   Serial.begin(57600);
   printf_begin();
-  printf("\n\rRF24/examples/pingpair/\n\r");
+  //printf("\n\rRF24/examples/pingpair/\n\r");
+  Serial.println();
 
   radio.begin();
 
@@ -67,25 +72,27 @@ void setup(void)
   radio.startListening();
 
   radio.printDetails();
+  //Serial.println("Hey Gillian, guess what??");
+  Serial.println();
 }
 
 void loop(void) {
-  if ( radio.available() )
-  {
-    // Dump the payloads until we've gotten everything
-    unsigned long got_time;
+  if (radio.available()) {
+    //char message[12];
+    unsigned long message;
     bool done = false;
-    while (!done)
-    {
-      // Fetch the payload, and see if this was the last one.
-      done = radio.read( &got_time, sizeof(unsigned long) );
+    while (!done) {
+      done = radio.read(&message, sizeof(unsigned long));
+    }
+    Serial.println(message);
 
-      // Spew it
-      printf("Got payload %lu...", got_time);
-
-      // Delay just a little bit to let the other unit
-      // make the transition to receiver
-      delay(20);
+    if (message == 1) {
+      for (int x = 0; x < 3; x++) {
+        digitalWrite(outputPin, LOW);
+        delay(50);
+        digitalWrite(outputPin, HIGH);
+        delay(50);
+      }
     }
   }
 }
