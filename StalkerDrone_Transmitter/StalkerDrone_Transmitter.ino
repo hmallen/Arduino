@@ -1,5 +1,9 @@
 /*
  * RF24 Transmitter Unit
+ * 
+ * TO DO:
+ * - Add tactile push button to trigger
+ * - Test with battery pack
  */
 
 #include <SPI.h>
