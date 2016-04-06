@@ -1,7 +1,7 @@
 #include <SPI.h>
 #include "nRF24L01.h"
 #include "RF24.h"
-//#include "printf.h"
+#include "printf.h"
 
 RF24 radio(9, 10);
 
@@ -9,12 +9,13 @@ RF24 radio(9, 10);
 
 const uint64_t pipe = 0xE8E8F0F0E1LL;
 
-const uint8_t message[] = {'A'};
+const uint8_t message[] = {1};
+
 const uint8_t messageLength = sizeof(message);
 
 void setup() {
   Serial.begin(57600);
-  //printf_begin();
+  printf_begin();
 
   radio.begin();
 
@@ -40,13 +41,14 @@ void setup() {
 void loop() {
   Serial.println("Sending...");
 
-  boolean sent = radio.write(message, messageLength);
+  unsigned long time = millis();
+
+  boolean sent = radio.write(&time, sizeof(unsigned long));
+  Serial.println(sent);
 
   if (sent) Serial.println("OK");
   else Serial.println("FAILED");
 
-  while (true) {
-    delay(10000);
-  }
+  delay(1000);
 }
 
