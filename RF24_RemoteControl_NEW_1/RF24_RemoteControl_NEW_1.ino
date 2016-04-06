@@ -41,23 +41,11 @@ const uint64_t pipes[2] = { 0xF0F0F0F0E1LL, 0xF0F0F0F0D2LL };
 // Set up role.  This sketch uses the same software for all the nodes
 // in this system.  Doing so greatly simplifies testing.  The hardware itself specifies
 // which node it is.
-//
-// This is done through the role_pin
-//
 
-void setup(void)
-{
-  //
-  // Print preamble
-  //
-
+void setup(void) {
   Serial.begin(57600);
   printf_begin();
   printf("\n\rRF24/examples/pingpair/\n\r");
-
-  //
-  // Setup and configure rf radio
-  //
 
   radio.begin();
 
@@ -67,10 +55,6 @@ void setup(void)
   // optionally, reduce the payload size.  seems to
   // improve reliability
   radio.setPayloadSize(8);
-
-  //
-  // Open pipes to other nodes for communication
-  //
 
   // This simple sketch opens two pipes for these two nodes to communicate
   // back and forth.
@@ -84,13 +68,43 @@ void setup(void)
 }
 
 void loop(void) {
+  printf("\n\rType 'S' to send...\n\r");
+
+  boolean sendTrigger = false;
+  while (sendTrigger == false) {
+    while (!Serial.available()) {
+      ;
+    }
+    while (Serial.available()) {
+      char c = Serial.read();
+      if (c == 'S') {
+        sendTrigger = true;
+        break;
+      }
+    }
+  }
+
+  radio.stopListening();
+
   // Take the time, and send it.  This will block until complete
-  unsigned long time = millis();
-  printf("Now sending %lu...", time);
-  bool ok = radio.write( &time, sizeof(unsigned long) );
+  unsigned long message = 1;
+  //char message[] = {"I <3 U!\0"};
+
+  printf("Now sending...");
+  bool ok = radio.write(&message, sizeof(message));
 
   if (ok) printf("ok...");
   else printf("failed.\n\r");
 
-  delay(1000);
+  // Now, continue listening
+  radio.startListening();
+
+  // Wait here until we get a response, or timeout (250ms)
+  unsigned long started_waiting_at = millis();
+  bool timeout = false;
+  while ( ! radio.available() && ! timeout ) {
+    if (millis() - started_waiting_at > 200 ) timeout = true;
+  }
+
+  printf("Send complete.\n\r");
 }
