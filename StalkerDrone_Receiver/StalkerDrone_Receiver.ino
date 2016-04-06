@@ -1,18 +1,5 @@
 /*
-  Copyright (C) 2011 J. Coliz <maniacbug@ymail.com>
-
-  This program is free software; you can redistribute it and/or
-  modify it under the terms of the GNU General Public License
-  version 2 as published by the Free Software Foundation.
-*/
-
-/**
-   Example RF Radio Ping Pair
-
-   This is an example of how to use the RF24 class.  Write this sketch to two different nodes,
-   connect the role_pin to ground on one.  The ping node sends the current time to the pong node,
-   which responds by sending the value back.  The ping node can then see how long the whole cycle
-   took.
+ * RF24 Receiver Unit
 */
 
 #include <SPI.h>
@@ -26,23 +13,10 @@
 
 Servo servo;
 
-//
-// Hardware configuration
-//
-
-// Set up nRF24L01 radio on SPI bus plus pins 9 & 10
-
 RF24 radio(9, 10);
 
 // Radio pipe addresses for the 2 nodes to communicate.
 const uint64_t pipes[2] = {0xF0F0F0F0E1LL, 0xF0F0F0F0D2LL};
-
-//
-// Role management
-//
-// Set up role.  This sketch uses the same software for all the nodes
-// in this system.  Doing so greatly simplifies testing.  The hardware itself specifies
-// which node it is.
 
 void setup(void) {
   pinMode(outputPin, OUTPUT);
@@ -61,15 +35,6 @@ void setup(void) {
   // optionally, reduce the payload size.  seems to
   // improve reliability
   radio.setPayloadSize(8);
-
-  //
-  // Open pipes to other nodes for communication
-  //
-
-  // This simple sketch opens two pipes for these two nodes to communicate
-  // back and forth.
-  // Open 'our' pipe for writing
-  // Open the 'other' pipe for reading, in position #1 (we can have up to 5 pipes open for reading)
 
   //radio.openWritingPipe(pipes[1]);
   radio.openReadingPipe(1, pipes[0]);
@@ -102,4 +67,3 @@ void loop(void) {
     }
   }
 }
-// vim:cin:ai:sts=2 sw=2 ft=cpp
