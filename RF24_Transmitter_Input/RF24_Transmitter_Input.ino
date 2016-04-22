@@ -1,11 +1,13 @@
 /*
- * RF24 Transmitter Unit
- */
+   RF24 Transmitter Unit
+*/
 
 #include <SPI.h>
-#include "RF24.h"
-#include "nRF24L01.h"
+#include <RF24.h>
+//#include "nRF24L01.h"
 #include "printf.h"
+
+#define sensorPin 2
 
 RF24 radio(9, 10);
 
@@ -13,15 +15,13 @@ RF24 radio(9, 10);
 const uint64_t pipes[2] = { 0xF0F0F0F0E1LL, 0xF0F0F0F0D2LL };
 
 void setup(void) {
+  pinMode(sensorPin, INPUT);
+
   Serial.begin(57600);
   printf_begin();
   printf("\n\rRF24/examples/pingpair/\n\r");
 
   radio.begin();
-  radio.setAutoAck(false);
-
-  radio.startListening();
-  radio.stopListening();
 
   // optionally, increase the delay between retries & # of retries
   radio.setRetries(15, 15);
@@ -37,31 +37,23 @@ void setup(void) {
 }
 
 void loop(void) {
-  printf("\n\rType 'S' to send...\n\r");
+  unsigned long sensorInput = digitalRead(sensorPin);
+  Serial.println(sensorInput);
 
-  boolean sendTrigger = false;
-  while (sendTrigger == false) {
-    while (!Serial.available()) {
-      ;
-    }
-    while (Serial.available()) {
-      char c = Serial.read();
-      if (c == 'S') {
-        sendTrigger = true;
-        break;
-      }
-    }
-  }
+  radio.stopListening();
 
   // Take the time, and send it.  This will block until complete
-  unsigned long message = 1;
-  //char message[] = {"I <3 U!\0"};
+  unsigned long message = sensorInput;
+  Serial.println(message);
 
   printf("Now sending...");
   bool ok = radio.write(&message, sizeof(message));
 
   if (ok) printf("ok...");
   else printf("failed.\n\r");
+
+  // Now, continue listening
+  radio.startListening();
 
   // Wait here until we get a response, or timeout (250ms)
   unsigned long started_waiting_at = millis();
@@ -70,5 +62,5 @@ void loop(void) {
     if (millis() - started_waiting_at > 200 ) timeout = true;
   }
 
-  printf("Send complete.\n\r");
+  delay(1000);
 }

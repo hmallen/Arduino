@@ -11,29 +11,29 @@
 Servo servo;
 
 void setup() {
-  pinMode(ledPin, OUTPUT); digitalWrite(ledPin, LOW);
+  pinMode(ledPin, OUTPUT); digitalWrite(ledPin, HIGH);
 
   Serial.begin(57600);
 
   Serial.println("Arming in 30 seconds...");
   for (int x = millis(); (millis() - x) < 15000; ) {
-    digitalWrite(ledPin, HIGH);
-    delay(500);
     digitalWrite(ledPin, LOW);
+    delay(500);
+    digitalWrite(ledPin, HIGH);
     delay(500);
   }
   Serial.println("Arming in 15 seconds...");
   for (int x = millis(); (millis() - x) < 10000; ) {
-    digitalWrite(ledPin, HIGH);
-    delay(500);
     digitalWrite(ledPin, LOW);
+    delay(500);
+    digitalWrite(ledPin, HIGH);
     delay(500);
   }
   Serial.println("Arming in 5 seconds...");
   for (int x = millis(); (millis() - x) < 5000; ) {
-    digitalWrite(ledPin, HIGH);
-    delay(500);
     digitalWrite(ledPin, LOW);
+    delay(500);
+    digitalWrite(ledPin, HIGH);
     delay(500);
   }
   Serial.print("Checking stability...");
@@ -52,7 +52,7 @@ void setup() {
   Serial.println("complete.");
   Serial.println();
 
-  digitalWrite(ledPin, HIGH);
+  digitalWrite(ledPin, LOW);
 
   Serial.println("Armed!");
   Serial.println();

@@ -4,7 +4,7 @@
 
 #include <Servo.h>
 
-#define servoPin 5
+#define servoPin 9
 #define ledPin 13
 
 Servo servo;
