@@ -1,13 +1,11 @@
 /*
-   RF24 Receiver Unit
+ * RF24 Receiver Unit
 */
 
 #include <SPI.h>
 #include "nRF24L01.h"
 #include "RF24.h"
 #include "printf.h"
-
-#define outputPin 2
 
 RF24 radio(9, 10);
 
@@ -41,19 +39,18 @@ void setup(void) {
 
 void loop(void) {
   if (radio.available()) {
-    unsigned long outputVal = readRadio();
-    Serial.println(outputVal);
-    if (outputVal == 1) digitalWrite(outputPin, HIGH);
+    //char message[12];
+    unsigned long message;
+    char done[8];
+    for (int x = 0; x < 8; x++) {
+      done[x] = radio.read(&message, sizeof(unsigned long));
+    }
+    /*while (radio.available()) {
+      done(radio.read(&message, sizeof(unsigned long)));
+    }*/
+    Serial.println(done);
+
+    if (message == 1) digitalWrite(outputPin, HIGH);
     else digitalWrite(outputPin, LOW);
   }
 }
-
-unsigned long readRadio() {
-  unsigned long message;
-  bool done = false;
-  while (!done) {
-    done = radio.read(&message, sizeof(unsigned long));
-  }
-  return message;
-}
-
